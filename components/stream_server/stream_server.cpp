@@ -25,12 +25,13 @@
 
 
 static const char *TAG = "streamserver";
+static const int BUF_SIZE = 256;
 
 using namespace esphome;
 
 void StreamServerComponent::setup() {
     ESP_LOGCONFIG(TAG, "Setting up stream server...");
-    this->recv_buf_.reserve(128);
+    this->recv_buf_.reserve(BUF_SIZE);
 
     this->server_ = AsyncServer(this->port_);
     this->server_.begin();
@@ -60,8 +61,8 @@ void StreamServerComponent::cleanup() {
 void StreamServerComponent::read() {
     int len;
     while ((len = this->stream_->available()) > 0) {
-        char buf[128];
-        len = std::min(len, 128);
+        char buf[BUF_SIZE];
+        len = std::min(len, (int)sizeof(buf));
 #if ESPHOME_VERSION_CODE >= VERSION_CODE(2021, 10, 0)
         this->stream_->read_array(reinterpret_cast<uint8_t*>(buf), len);
 #else
