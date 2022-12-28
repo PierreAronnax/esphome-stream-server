@@ -26,6 +26,7 @@
 
 static const char *TAG = "streamserver";
 static const int BUF_SIZE = 256;
+static const int LINE_SIZE = 80;
 
 using namespace esphome;
 
@@ -58,7 +59,33 @@ void StreamServerComponent::cleanup() {
     this->clients_.erase(last_client, this->clients_.end());
 }
 
+char * StreamServerComponent::readline(char *buf, int len) {
+    static char line[LINE_SIZE];
+    static int pos = 0;
+
+    while (len--) {
+        char c = *buf++;
+        switch (c) {
+            case '\n': // Ignore new-lines
+                break;
+            case '\r': // Return on CR
+                line[pos] = 0;
+                pos = 0; // Reset position index ready for next time
+                return line;
+            default:
+                if (pos < LINE_SIZE-1) {
+                    line[pos++] = c;
+                }
+                break;
+        }
+    }
+
+    // No end of line has been found, so return NULL.
+    return NULL;
+}
+
 void StreamServerComponent::read() {
+    char *line;
     int len;
     while ((len = this->stream_->available()) > 0) {
         char buf[BUF_SIZE];
@@ -68,6 +95,10 @@ void StreamServerComponent::read() {
 #else
         this->stream_->readBytes(buf, len);
 #endif
+
+        if ((line = readline(buf, len))) {
+        }
+
         for (auto const& client : this->clients_)
             client->tcp_client->write(buf, len);
     }

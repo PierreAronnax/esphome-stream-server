@@ -61,6 +61,7 @@ public:
 
 protected:
     void cleanup();
+    char * readline(char *buf, int len);
     void read();
     void write();
 
