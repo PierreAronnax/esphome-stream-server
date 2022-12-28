@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "esphome.h"
 #include "esphome/core/version.h"
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
@@ -58,6 +59,8 @@ public:
     float get_setup_priority() const override { return esphome::setup_priority::AFTER_WIFI; }
 
     void set_port(uint16_t port) { this->port_ = port; }
+
+    esphome::text_sensor::TextSensor *readline_sensor = new esphome::text_sensor::TextSensor();
 
 protected:
     void cleanup();

@@ -97,6 +97,7 @@ void StreamServerComponent::read() {
 #endif
 
         if ((line = readline(buf, len))) {
+            readline_sensor->publish_state(line);
         }
 
         for (auto const& client : this->clients_)
